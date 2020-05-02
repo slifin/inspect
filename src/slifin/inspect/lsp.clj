@@ -1,5 +1,6 @@
 (ns slifin.inspect.lsp
-  (:require [slifin.inspect.analyse :as analysis])
+  (:require [slifin.inspect.analyse :as analysis]
+            [clojure.tools.nrepl.server :refer [start-server stop-server]])
   (:import [org.eclipse.lsp4j.launch LSPLauncher]
            [org.eclipse.lsp4j.services TextDocumentService LanguageClient LanguageServer WorkspaceService]
            [java.util.concurrent CompletableFuture]
@@ -76,6 +77,8 @@
   (^void didChangeConfiguration [_ ^DidChangeConfigurationParams params])
   (^void didChangeWatchedFiles [_ ^DidChangeWatchedFilesParams _params]))
 
+(def repl)
+
 (def server
   (proxy [LanguageServer] []
     (^CompletableFuture initialize [^InitializeParams params]
@@ -85,12 +88,15 @@
                                                           (.setOpenClose true)
                                                           (.setChange TextDocumentSyncKind/Full)))))))
     (^CompletableFuture initialized [^InitializedParams params]
-      (info "Inspect LSP initialized"))
+      (info "Inspect LSP initialized")
+      (def repl (start-server :port 5555)))
     (^CompletableFuture shutdown []
       (info "Inspect LSP shutting down.")
       (CompletableFuture/completedFuture 0))
 
     (^void exit []
+      ;; Stop the REPL
+      (stop-server repl)
       (shutdown-agents)
       (System/exit 0))
 
