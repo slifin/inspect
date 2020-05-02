@@ -1,0 +1,15 @@
+.DS_Store
+inspect.iml
+/.idea
+/target
+/classes
+/checkouts
+/lsp
+*.jar
+*.class
+/.cpcache
+/.lein-*
+/.nrepl-history
+/.nrepl-port
+.hgignore
+.hg/
